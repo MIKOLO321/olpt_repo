@@ -111,6 +111,37 @@ LANGUAGE plpgsql;
 
 SELECT my_cal(6, 5.7) --output 34.2
 
+CREATE OR REPLACE FUNCTION Application.DetermineCustomerAccess(CityID INT)
+RETURNS TABLE (AccessResult INT)
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 1 AS AccessResult
+  WHERE current_user IN (
+      -- Check for db_owner role
+      'db_owner',
+      
+      -- Check for Sales Territory Role
+      (SELECT sp.SalesTerritory || ' Sales'
+       FROM Application.Cities AS c
+       INNER JOIN Application.StateProvinces AS sp
+       ON c.StateProvinceID = sp.StateProvinceID
+       WHERE c.CityID = CityID)
+  )
+  OR (
+      -- Check for Website user with Sales Territory restriction
+      current_user = 'Website'
+      AND EXISTS (
+          SELECT 1
+          FROM Application.Cities AS c
+          INNER JOIN Application.StateProvinces AS sp
+          ON c.StateProvinceID = sp.StateProvinceID
+          WHERE c.CityID = CityID
+          AND sp.SalesTerritory = current_setting('app.SalesTerritory', true)
+      )
+  );
+END;
+$$ LANGUAGE plpgsql STABLE;
 
 
 

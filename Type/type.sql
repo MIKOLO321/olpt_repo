@@ -16,11 +16,11 @@ CREATE TYPE website.order_list AS (
     delivery_instructions TEXT
 );
 
-CREATE TYPE website.sensor_data_list AS (
-    sensor_data_list_id int,  
-    cold_room_sensor_number INT,
-    recorded_when TIMESTAMP(6),
-    temperature DECIMAL(18,2)
+CREATE TYPE website.SensorDataList AS (
+    SensorDataListID INT,
+    ColdRoomSensorNumber INT,
+    RecordedWhen TIMESTAMP WITH TIME ZONE,
+    Temperature NUMERIC(18,2)
 );
 
 
