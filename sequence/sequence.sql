@@ -10,6 +10,86 @@ CACHE 1;
 -- to see the next  values
 select nextval('Sequences.BuyingGroupID');
 
+create sequence sales.customer_category_id_seq
+START WITH 100
+INCREMENT BY 1
+M INVALUE 100
+MAXVALUE 999;
+CREATE SEQUENCE sales.invoice_id_seq
+START WITH 100
+INCREMENT BY 1
+MINVALUE 100
+MAXVALUE 999;
+CREATE SEQUENCE sales.order_line_id_seq
+START WITH 100
+INCREMENT BY 1
+MINVALUE 100
+MAXVALUE 999;
+
+
+CREATE SEQUENCE sales.order_id_seq
+START WITH 100
+INCREMENT BY 1
+MINVALUE 100
+MAXVALUE 999;
+
+
+CREATE SEQUENCE sales.special_deal_id_seq
+START WITH 100
+INCREMENT BY 1
+MINVALUE 100
+MAXVALUE 999;
+
+CREATE SEQUENCE warehouse.color_id_seq
+START WITH 100
+INCREMENT BY 1
+MINVALUE 100
+MAXVALUE 999;
+
+
+CREATE SEQUENCE warehouse.package_type_id_seq
+START WITH 100
+INCREMENT BY 1
+MINVALUE 100
+MAXVALUE 999;
+CREATE SEQUENCE warehouse.stock_group_id_seq
+START WITH 100
+INCREMENT BY 1
+MINVALUE 100
+MAXVALUE 999;
+
+CREATE SEQUENCE warehouse.stock_item_id_seq
+START WITH 100
+INCREMENT BY 1
+MINVALUE 100
+MAXVALUE 999;
+
+CREATE SEQUENCE warehouse.stock_item_transaction_id_seq
+START WITH 100
+INCREMENT BY 1
+MINVALUE 100
+MAXVALUE 999;
+
+create sequence sales.invoice_line_id_seq
+START WITH 100
+INCREMENT BY 1
+MINVALUE 100
+MAXVALUE 999;
+
+
+create sequence sales.customer_id_seq
+START WITH 100
+INCREMENT BY 1
+MINVALUE 100
+MAXVALUE 999; 
+ALTER TABLE sales.customercategories
+ALTER COLUMN customercategoryid SET DEFAULT nextval('sales.customer_category_id_seq');
+
+CREATE SEQUENCE sales.buyinggroupid_seq
+START WITH 100
+INCREMENT BY 1
+MINVALUE 100
+MAXVALUE 999; 
 
 CREATE SEQUENCE tbs_seq
 START WITH 100
@@ -215,3 +295,18 @@ CREATE SEQUENCE Sequences.TransactionTypeID
  MAXVALUE 2147483647;
 
 
+
+CREATE SEQUENCE application.transaction_type_id_seq
+    AS int
+ START WITH 14
+ INCREMENT BY 1
+ MINVALUE -2147483648
+ MAXVALUE 2147483647;
+
+ 
+
+CREATE SEQUENCE purchasing.purchase_order_line_id_seq
+    AS int
+ START WITH 228
+ INCREMENT BY 1
+ MINVALUE -2147483648

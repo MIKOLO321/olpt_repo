@@ -80,6 +80,19 @@ CREATE TABLE Application.Cities (
     ValidTo TIMESTAMP WITH TIME ZONE GENERATED ALWAYS AS ROW END NOT NULL,
     CONSTRAINT PK_Application_Cities PRIMARY KEY (CityID)
 );
+
+CREATE TABLE purchasing.supplier_transactions (
+    supplier_transaction_id SERIAL PRIMARY KEY,
+    transaction_date DATE NOT NULL,
+    transaction_type VARCHAR(50) NOT NULL,
+    amount NUMERIC(15, 2) NOT NULL,
+    description TEXT,
+    last_edited_when TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE,
+    reference_number VARCHAR(255)
+);
+
 CREATE TABLE Purchasing.Suppliers_Archive (
     SupplierID INT NOT NULL,
     SupplierName VARCHAR(100) NOT NULL,
@@ -442,3 +455,432 @@ CREATE TABLE Application.PaymentMethods (
     CONSTRAINT PK_Application_PaymentMethods PRIMARY KEY (PaymentMethodID),
     CONSTRAINT UQ_Application_PaymentMethods_PaymentMethodName UNIQUE (PaymentMethodName)
 );
+
+CREATE TABLE purchasing.supplier_categories (
+    supplier_category_id SERIAL PRIMARY KEY,
+    category_name VARCHAR(255) NOT NULL UNIQUE,
+    description TEXT,
+    parent_category_id INTEGER REFERENCES purchasing.supplier_categories(supplier_category_id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE TABLE Purchasing.SupplierCategories_Archive (
+    SupplierCategoryID INT NOT NULL,
+    SupplierCategoryName VARCHAR(50) NOT NULL,
+    LastEditedBy INT NOT NULL,
+    ValidFrom timestamptz NOT NULL,
+    ValidTo timestamptz NOT NULL
+);
+
+CREATE TABLE Purchasing.SupplierCategories (
+    SupplierCategoryID INT NOT NULL,
+    SupplierCategoryName VARCHAR(50) NOT NULL,
+    LastEditedBy INT NOT NULL,
+    ValidFrom timestamptz NOT NULL,
+    ValidTo timestamptz NOT NULL,
+    CONSTRAINT PK_Purchasing_SupplierCategories PRIMARY KEY (SupplierCategoryID),
+    CONSTRAINT UQ_Purchasing_SupplierCategories_SupplierCategoryName UNIQUE (SupplierCategoryName)
+);
+
+CREATE TABLE Application.StateProvinces (
+    StateProvinceID INT NOT NULL,
+    StateProvinceCode VARCHAR(5) NOT NULL,
+    StateProvinceName VARCHAR(50) NOT NULL,
+    CountryID INT NOT NULL,
+    SalesTerritory VARCHAR(50) NOT NULL,
+    Border Polygon, 
+    LatestRecordedPopulation BIGINT,
+    LastEditedBy INT NOT NULL,
+    ValidFrom timestamptz NOT NULL,
+    ValidTo timestamptz NOT NULL,
+    CONSTRAINT PK_Application_StateProvinces PRIMARY KEY (StateProvinceID),
+    CONSTRAINT UQ_Application_StateProvinces_StateProvinceName UNIQUE (StateProvinceName)
+);
+
+
+CREATE TABLE Application.Cities (
+    CityID INT NOT NULL,
+    CityName VARCHAR(50) NOT NULL,  -- Adjust size as needed
+    StateProvinceID INT NOT NULL,
+    LastEditedBy INT NOT NULL,
+    ValidFrom timestamptz NOT NULL,
+    ValidTo timestamptz NOT NULL,
+    CONSTRAINT PK_Application_Cities PRIMARY KEY (CityID),
+    CONSTRAINT UQ_Application_Cities_CityName UNIQUE (CityName),
+    CONSTRAINT FK_Application_Cities_StateProvince FOREIGN KEY (StateProvinceID) REFERENCES Application.StateProvinces(StateProvinceID)
+    
+);
+
+CREATE TABLE Purchasing.Suppliers (
+    SupplierID INT NOT NULL,
+    SupplierName VARCHAR(100) NOT NULL,  -- Adjust size as needed
+    SupplierCategoryID INT,
+    PrimaryContactPersonID INT,
+    AlternateContactPersonID INT,
+    PhoneNumber VARCHAR(50),  -- Adjust size as needed
+    FaxNumber VARCHAR(50),      -- Adjust size as needed
+    WebsiteURL VARCHAR(255),    -- Adjust size as needed
+    DeliveryMethodID INT,
+    DeliveryCityID INT,
+    DeliveryLocation VARCHAR(255), -- Adjust size as needed
+    SupplierReference VARCHAR(100), -- Adjust size as needed
+    LastEditedBy INT NOT NULL,
+    ValidFrom timestamptz NOT NULL,
+    ValidTo timestamptz NOT NULL,
+    CONSTRAINT PK_Purchasing_Suppliers PRIMARY KEY (SupplierID)
+
+
+CREATE TABLE Sales.BuyingGroups_Archive (
+    BuyingGroupID INT NOT NULL,
+    BuyingGroupName VARCHAR(50) NOT NULL,
+    LastEditedBy INT NOT NULL,
+    ValidFrom timestamptz NOT NULL,
+    ValidTo timestamptz NOT NULL
+);
+
+CREATE TABLE Sales.BuyingGroups (
+    BuyingGroupID INT NOT NULL,
+    BuyingGroupName VARCHAR(50) NOT NULL,
+    LastEditedBy INT NOT NULL,
+    ValidFrom timestamptz NOT NULL,
+    ValidTo timestamptz NOT NULL,
+    CONSTRAINT PK_Sales_BuyingGroups PRIMARY KEY (BuyingGroupID),
+    CONSTRAINT UQ_Sales_BuyingGroups_BuyingGroupName UNIQUE (BuyingGroupName)
+);
+
+
+CREATE TABLE Sales.CustomerCategories_Archive (
+    CustomerCategoryID INT NOT NULL,
+    CustomerCategoryName VARCHAR(50) NOT NULL,
+    LastEditedBy INT NOT NULL,
+    ValidFrom timestamptz NOT NULL,
+    ValidTo timestamptz NOT NULL
+);
+
+CREATE TABLE Sales.CustomerCategories (
+    CustomerCategoryID INT NOT NULL,
+    CustomerCategoryName VARCHAR(50) NOT NULL,
+    LastEditedBy INT NOT NULL,
+    ValidFrom timestamptz NOT NULL,
+    ValidTo timestamptz NOT NULL,
+    CONSTRAINT PK_Sales_CustomerCategories PRIMARY KEY (CustomerCategoryID),
+    CONSTRAINT UQ_Sales_CustomerCategories_CustomerCategoryName UNIQUE (CustomerCategoryName)
+);
+
+CREATE TABLE Warehouse.VehicleTemperatures (
+    VehicleTemperatureID BIGSERIAL PRIMARY KEY,  -- BIGSERIAL for auto-incrementing bigint
+    VehicleRegistration VARCHAR(20) NOT NULL,
+    ChillerSensorNumber INT NOT NULL,
+    RecordedWhen timestamptz NOT NULL,
+    Temperature NUMERIC(10, 2) NOT NULL,
+    FullSensorData TEXT,  -- TEXT for longer strings
+    IsCompressed BOOLEAN NOT NULL,
+    CompressedSensorData BYTEA -- BYTEA for binary data
+);
+
+CREATE TABLE Website.VehicleTemperatures (
+    VehicleTemperatureID BIGSERIAL PRIMARY KEY,
+    VehicleRegistration VARCHAR(20) NOT NULL,
+    ChillerSensorNumber INT NOT NULL,
+    RecordedWhen timestamptz NOT NULL,
+    Temperature NUMERIC(10, 2) NOT NULL,
+    FullSensorData TEXT,
+    IsCompressed BOOLEAN NOT NULL,
+    CompressedSensorData BYTEA
+);
+
+CREATE TABLE Warehouse.VehicleTemperatures (
+    VehicleTemperatureID BIGSERIAL PRIMARY KEY,  -- BIGSERIAL for auto-incrementing bigint
+    VehicleRegistration VARCHAR(20) NOT NULL,
+    ChillerSensorNumber INT NOT NULL,
+    RecordedWhen timestamptz NOT NULL,
+    Temperature NUMERIC(10, 2) NOT NULL,
+    FullSensorData TEXT,  -- TEXT for longer strings
+    IsCompressed BOOLEAN NOT NULL,
+    CompressedSensorData BYTEA -- BYTEA for binary data
+);
+
+CREATE TABLE Website.VehicleTemperatures (
+    VehicleTemperatureID BIGSERIAL PRIMARY KEY,
+    VehicleRegistration VARCHAR(20) NOT NULL,
+    ChillerSensorNumber INT NOT NULL,
+    RecordedWhen timestamptz NOT NULL,
+    Temperature NUMERIC(10, 2) NOT NULL,
+    FullSensorData TEXT,
+    IsCompressed BOOLEAN NOT NULL,
+    CompressedSensorData BYTEA
+);
+
+CREATE TABLE Application.TransactionTypes_Archive (
+    TransactionTypeID INTEGER NOT NULL,
+    TransactionTypeName VARCHAR(50) NOT NULL,
+    LastEditedBy INTEGER NOT NULL,
+    ValidFrom TIMESTAMP WITH TIME ZONE NOT NULL,
+    ValidTo TIMESTAMP WITH TIME ZONE NOT NULL
+);
+CREATE INDEX ix_TransactionTypes_Archive ON Application.TransactionTypes_Archive (ValidTo, ValidFrom);
+
+CREATE TABLE Application.TransactionTypes (
+    TransactionTypeID INTEGER PRIMARY KEY NOT NULL,
+    TransactionTypeName VARCHAR(50) NOT NULL,
+    LastEditedBy INTEGER NOT NULL,
+    ValidFrom TIMESTAMP WITH TIME ZONE  NOT NULL,
+    ValidTo TIMESTAMP WITH TIME ZONE  NOT NULL
+   
+);
+
+CREATE TABLE Application.SystemParameters (
+    SystemParameterID INTEGER NOT NULL,
+    DeliveryAddressLine1 VARCHAR(60) NOT NULL,
+    DeliveryAddressLine2 VARCHAR(60) NULL,
+    DeliveryCityID INTEGER NOT NULL,
+    DeliveryPostalCode VARCHAR(10) NOT NULL,
+    DeliveryLocation POLYGON NOT NULL,  -- Geography type
+    PostalAddressLine1 VARCHAR(60) NOT NULL,
+    PostalAddressLine2 VARCHAR(60) NULL,
+    PostalCityID INTEGER NOT NULL,
+    PostalPostalCode VARCHAR(10) NOT NULL,
+    ApplicationSettings TEXT NOT NULL,      -- nvarchar(max) equivalent
+    LastEditedBy INTEGER NOT NULL,
+    LastEditedWhen TIMESTAMP WITH TIME ZONE NOT NULL, -- datetime2 equivalent
+    CONSTRAINT PK_Application_SystemParameters PRIMARY KEY (SystemParameterID) -- No CLUSTERED
+);
+CREATE TABLE Purchasing.PurchaseOrderLines (
+    PurchaseOrderLineID INTEGER NOT NULL,
+    PurchaseOrderID INTEGER NOT NULL,
+    StockItemID INTEGER NOT NULL,
+    OrderedOuters INTEGER NOT NULL,
+    Description VARCHAR(100) NOT NULL,
+    ReceivedOuters INTEGER NOT NULL,
+    PackageTypeID INTEGER NOT NULL,
+    ExpectedUnitPricePerOuter NUMERIC(18, 2) NULL,  -- Decimal equivalent
+    LastReceiptDate DATE NULL,
+    IsOrderLineFinalized BOOLEAN NOT NULL,        -- Bit equivalent
+    LastEditedBy INTEGER NOT NULL,
+    LastEditedWhen TIMESTAMP WITH TIME ZONE NOT NULL, -- Datetime2 equivalent
+    CONSTRAINT PK_Purchasing_PurchaseOrderLines PRIMARY KEY (PurchaseOrderLineID) -- No CLUSTERED
+);
+
+CREATE TABLE Purchasing.PurchaseOrders (
+    PurchaseOrderID INTEGER NOT NULL,
+    SupplierID INTEGER NOT NULL,
+    OrderDate DATE NOT NULL,
+    DeliveryMethodID INTEGER NOT NULL,
+    ContactPersonID INTEGER NOT NULL,
+    ExpectedDeliveryDate DATE NULL,
+    SupplierReference VARCHAR(20) NULL,
+    IsOrderFinalized BOOLEAN NOT NULL,       -- Bit equivalent
+    Comments TEXT NULL,                      -- nvarchar(max) equivalent
+    InternalComments TEXT NULL,              -- nvarchar(max) equivalent
+    LastEditedBy INTEGER NOT NULL,
+    LastEditedWhen TIMESTAMP WITH TIME ZONE NOT NULL, -- datetime2 equivalent
+    CONSTRAINT PK_Purchasing_PurchaseOrders PRIMARY KEY (PurchaseOrderID)  -- No CLUSTERED
+);
+CREATE TABLE Purchasing.SupplierTransactions (
+    SupplierTransactionID INTEGER NOT NULL,
+    SupplierID INTEGER NOT NULL,
+    TransactionTypeID INTEGER NOT NULL,
+    PurchaseOrderID INTEGER NULL,
+    PaymentMethodID INTEGER NULL,
+    SupplierInvoiceNumber VARCHAR(20) NULL,
+    TransactionDate DATE NOT NULL,
+    AmountExcludingTax NUMERIC(18, 2) NOT NULL,
+    TaxAmount NUMERIC(18, 2) NOT NULL,
+    TransactionAmount NUMERIC(18, 2) NOT NULL,
+    OutstandingBalance NUMERIC(18, 2) NOT NULL,
+    FinalizationDate DATE NULL,
+    IsFinalized BOOLEAN GENERATED ALWAYS AS (CASE WHEN FinalizationDate IS NULL THEN FALSE ELSE TRUE END) STORED,  -- Computed/Generated column
+    LastEditedBy INTEGER NOT NULL,
+    LastEditedWhen TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT PK_Purchasing_SupplierTransactions PRIMARY KEY (SupplierTransactionID) -- No NONCLUSTERED
+);
+
+CREATE INDEX idx_SupplierTransactions_TransactionDate ON Purchasing.SupplierTransactions (TransactionDate);
+
+CREATE TABLE Sales.CustomerTransactions (
+    CustomerTransactionID INTEGER NOT NULL,
+    CustomerID INTEGER NOT NULL,
+    TransactionTypeID INTEGER NOT NULL,
+    InvoiceID INTEGER NULL,
+    PaymentMethodID INTEGER NULL,
+    TransactionDate DATE NOT NULL,
+    AmountExcludingTax NUMERIC(18, 2) NOT NULL,
+    TaxAmount NUMERIC(18, 2) NOT NULL,
+    TransactionAmount NUMERIC(18, 2) NOT NULL,
+    OutstandingBalance NUMERIC(18, 2) NOT NULL,
+    FinalizationDate DATE NULL,
+    IsFinalized BOOLEAN GENERATED ALWAYS AS (CASE WHEN FinalizationDate IS NULL THEN FALSE ELSE TRUE END) STORED,  -- Computed column
+    LastEditedBy INTEGER NOT NULL,
+    LastEditedWhen TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT PK_Sales_CustomerTransactions PRIMARY KEY (CustomerTransactionID) -- No NONCLUSTERED
+);
+
+CREATE INDEX idx_CustomerTransactions_TransactionDate ON Sales.CustomerTransactions (TransactionDate);
+
+CREATE TABLE Sales.InvoiceLines (
+    InvoiceLineID INTEGER NOT NULL,
+    InvoiceID INTEGER NOT NULL,
+    StockItemID INTEGER NOT NULL,
+    Description VARCHAR(100) NOT NULL,
+    PackageTypeID INTEGER NOT NULL,
+    Quantity INTEGER NOT NULL,
+    UnitPrice NUMERIC(18, 2) NULL,
+    TaxRate NUMERIC(18, 3) NOT NULL,
+    TaxAmount NUMERIC(18, 2) NOT NULL,
+    LineProfit NUMERIC(18, 2) NOT NULL,
+    ExtendedPrice NUMERIC(18, 2) NOT NULL,
+    LastEditedBy INTEGER NOT NULL,
+    LastEditedWhen TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT PK_Sales_InvoiceLines PRIMARY KEY (InvoiceLineID)  -- No CLUSTERED
+);
+
+
+CREATE TABLE Sales.Invoices (
+    InvoiceID INTEGER NOT NULL,
+    CustomerID INTEGER NOT NULL,
+    BillToCustomerID INTEGER NOT NULL,
+    OrderID INTEGER NULL,
+    DeliveryMethodID INTEGER NOT NULL,
+    ContactPersonID INTEGER NOT NULL,
+    AccountsPersonID INTEGER NOT NULL,
+    SalespersonPersonID INTEGER NOT NULL,
+    PackedByPersonID INTEGER NOT NULL,
+    InvoiceDate DATE NOT NULL,
+    CustomerPurchaseOrderNumber VARCHAR(20) NULL,
+    IsCreditNote BOOLEAN NOT NULL,        -- Bit equivalent
+    CreditNoteReason TEXT NULL,            -- nvarchar(max) equivalent
+    Comments TEXT NULL,                    -- nvarchar(max) equivalent
+    DeliveryInstructions TEXT NULL,        -- nvarchar(max) equivalent
+    InternalComments TEXT NULL,            -- nvarchar(max) equivalent
+    TotalDryItems INTEGER NOT NULL,
+    TotalChillerItems INTEGER NOT NULL,
+    DeliveryRun VARCHAR(5) NULL,
+    RunPosition VARCHAR(5) NULL,
+    ReturnedDeliveryData TEXT NULL,        -- nvarchar(max) equivalent
+    ConfirmedDeliveryTime TIMESTAMP,
+    ConfirmedReceivedBy TEXT,
+    LastEditedBy INTEGER NOT NULL,
+    LastEditedWhen TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT PK_Sales_Invoices PRIMARY KEY (InvoiceID)  -- No CLUSTERED
+);
+
+CREATE TABLE Sales.OrderLines (
+    OrderLineID INTEGER NOT NULL,
+    OrderID INTEGER NOT NULL,
+    StockItemID INTEGER NOT NULL,
+    Description VARCHAR(100) NOT NULL,
+    PackageTypeID INTEGER NOT NULL,
+    Quantity INTEGER NOT NULL,
+    UnitPrice NUMERIC(18, 2) NULL,
+    TaxRate NUMERIC(18, 3) NOT NULL,
+    PickedQuantity INTEGER NOT NULL,
+    PickingCompletedWhen TIMESTAMP WITH TIME ZONE NULL,
+    LastEditedBy INTEGER NOT NULL,
+    LastEditedWhen TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT PK_Sales_OrderLines PRIMARY KEY (OrderLineID)  -- No CLUSTERED
+);
+
+CREATE TABLE Sales.Orders (
+    OrderID INTEGER NOT NULL,
+    CustomerID INTEGER NOT NULL,
+    SalespersonPersonID INTEGER NOT NULL,
+    PickedByPersonID INTEGER NULL,
+    ContactPersonID INTEGER NOT NULL,
+    BackorderOrderID INTEGER NULL,
+    OrderDate DATE NOT NULL,
+    ExpectedDeliveryDate DATE NOT NULL,
+    CustomerPurchaseOrderNumber VARCHAR(20) NULL,
+    IsUndersupplyBackordered BOOLEAN NOT NULL,  -- Bit equivalent
+    Comments TEXT NULL,                      -- nvarchar(max) equivalent
+    DeliveryInstructions TEXT NULL,          -- nvarchar(max) equivalent
+    InternalComments TEXT NULL,              -- nvarchar(max) equivalent
+    PickingCompletedWhen TIMESTAMP WITH TIME ZONE NULL, -- datetime2 equivalent
+    LastEditedBy INTEGER NOT NULL,
+    LastEditedWhen TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT PK_Sales_Orders PRIMARY KEY (OrderID)  -- No CLUSTERED
+);
+
+
+CREATE TABLE Sales.SpecialDeals (
+    SpecialDealID INTEGER NOT NULL,
+    StockItemID INTEGER NULL,
+    CustomerID INTEGER NULL,
+    BuyingGroupID INTEGER NULL,
+    CustomerCategoryID INTEGER NULL,
+    StockGroupID INTEGER NULL,
+    DealDescription VARCHAR(30) NOT NULL,
+    StartDate DATE NOT NULL,
+    EndDate DATE NOT NULL,
+    DiscountAmount NUMERIC(18, 2) NULL,
+    DiscountPercentage NUMERIC(18, 3) NULL,
+    UnitPrice NUMERIC(18, 2) NULL,
+    LastEditedBy INTEGER NOT NULL,
+    LastEditedWhen TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT PK_Sales_SpecialDeals PRIMARY KEY (SpecialDealID)  -- No CLUSTERED
+);
+
+CREATE TABLE Warehouse.StockItemHoldings (
+    StockItemID INTEGER NOT NULL,
+    QuantityOnHand INTEGER NOT NULL,
+    BinLocation VARCHAR(20) NOT NULL,
+    LastStocktakeQuantity INTEGER NOT NULL,
+    LastCostPrice NUMERIC(18, 2) NOT NULL,
+    ReorderLevel INTEGER NOT NULL,
+    TargetStockLevel INTEGER NOT NULL,
+    LastEditedBy INTEGER NOT NULL,
+    LastEditedWhen TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT PK_Warehouse_StockItemHoldings PRIMARY KEY (StockItemID)  -- No CLUSTERED
+);
+
+
+CREATE TABLE Warehouse.StockItemStockGroups (
+    StockItemStockGroupID INTEGER NOT NULL,
+    StockItemID INTEGER NOT NULL,
+    StockGroupID INTEGER NOT NULL,
+    LastEditedBy INTEGER NOT NULL,
+    LastEditedWhen TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT PK_Warehouse_StockItemStockGroups PRIMARY KEY (StockItemStockGroupID),  -- No CLUSTERED
+    CONSTRAINT UQ_StockItemStockGroups_StockGroupID_Lookup UNIQUE (StockGroupID, StockItemID), -- No NONCLUSTERED
+    CONSTRAINT UQ_StockItemStockGroups_StockItemID_Lookup UNIQUE (StockItemID, StockGroupID)  -- No NONCLUSTERED
+);
+
+CREATE TABLE Warehouse.StockItemTransactions (
+    StockItemTransactionID INTEGER NOT NULL,
+    StockItemID INTEGER NOT NULL,
+    TransactionTypeID INTEGER NOT NULL,
+    CustomerID INTEGER NULL,
+    InvoiceID INTEGER NULL,
+    SupplierID INTEGER NULL,
+    PurchaseOrderID INTEGER NULL,
+    TransactionOccurredWhen TIMESTAMP WITH TIME ZONE NOT NULL,
+    Quantity NUMERIC(18, 3) NOT NULL,
+    LastEditedBy INTEGER NOT NULL,
+    LastEditedWhen TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT PK_Warehouse_StockItemTransactions PRIMARY KEY (StockItemTransactionID)  -- No NONCLUSTERED
+);
+CREATE TABLE application.system_parameters (
+    system_parameter_id SERIAL PRIMARY KEY,
+    parameter_name VARCHAR(255) NOT NULL,
+    parameter_value TEXT,
+    numeric_value NUMERIC(10, 2),  -- Example: a number with 10 digits, 2 after the decimal
+    is_active BOOLEAN DEFAULT TRUE, -- Example: a boolean column with a default value
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
+
+CREATE TABLE purchasing.purchase_order_lines (
+    purchase_order_line_id SERIAL PRIMARY KEY,
+    quantity INTEGER NOT NULL,
+    unit_price NUMERIC(10, 2),
+    line_total NUMERIC(10, 2),
+    description TEXT,
+    shipping_info JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
+
+
+
